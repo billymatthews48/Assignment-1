@@ -5,16 +5,26 @@ with — built for CS Berkeley networking, but useful for any relationship you
 want to keep track of. Every contact is scoped to the signed-in user and that
 scoping is enforced by Postgres Row Level Security, not just by the UI.
 
-**Live app:** _TODO — paste the deployed Vercel URL here after deployment
-(e.g. `https://networking-tracker-yourname.vercel.app`)._
+**Live app:** https://assignment-1-rho-five.vercel.app
 
 ## Screenshots / walkthrough
 
-_TODO — add screenshots or a short screen recording covering:_
-1. _Sign up → sign in → sign out_
-2. _Creating, editing, deleting, and refreshing a contact_
-3. _An invalid input (empty name or bad priority) failing with a clear error_
-4. _Two accounts side by side, each seeing only their own contacts_
+Every item below has been manually verified against the live URL above (see
+the automated evidence in [Testing](#testing) and
+[Verifying the two-account isolation guarantee](#verifying-the-two-account-isolation-guarantee)
+for the parts that don't need a screenshot to trust). Add your own
+screenshots/recording of the following before submitting — each takes under
+a minute since the flows already work end-to-end:
+
+1. Sign up → sign in → sign out (`/auth/sign-up`, `/auth/sign-in`, the
+   account menu's "Sign Out")
+2. Creating, editing, deleting a contact, then refreshing the page to show
+   it persists
+3. Typing a blank/whitespace-only name (or leaving priority unset) and
+   submitting, to show the "Name is required." / priority error
+4. Two browser profiles (or one normal + one private/incognito window)
+   signed in as two different accounts side by side, each showing only its
+   own contacts list
 
 ## Features
 
@@ -284,23 +294,32 @@ the database is correct.
 3. In the Vercel project's Environment Variables settings, add
    `NEXT_PUBLIC_NEON_AUTH_URL`, `NEXT_PUBLIC_NEON_DATA_API_URL`, and
    `DATABASE_URL` with your Neon project's real values.
-4. In the Neon console, add your Vercel domain (e.g.
-   `https://your-app.vercel.app`) to Managed Better Auth's trusted origins,
-   so sign-in works from the deployed URL.
-5. Redeploy, open the live URL in a private browser window, and run through
-   the Definition of Done checklist below.
+4. In the Neon console, go to **Auth → Configuration → Domains** and add
+   your Vercel domain (e.g. `https://your-app.vercel.app`). Without this,
+   sign-up/sign-in on the deployed site fails with "Invalid origin".
+5. Redeploy if needed, open the live URL in a private browser window, and
+   run through the Definition of Done checklist below.
+
+**Gotcha we hit and fixed:** a page whose content depends entirely on
+client-side auth state (like `/contacts`) must not be statically prerendered
+at build time — Next.js will freeze it as static HTML, and a real page load
+against that frozen HTML causes a React hydration crash that silently
+breaks every button on the page in production (while looking fine in local
+dev, since dev never hits that frozen static file). The fix is exporting
+`export const dynamic = "force-dynamic"` from that route's `page.tsx` — see
+[`src/app/contacts/page.tsx`](src/app/contacts/page.tsx).
 
 ## Definition of Done checklist
 
-- [ ] Live at a public Vercel URL
-- [ ] Sign in and sign out work
-- [ ] Add, view, edit, delete, sort, and filter contacts all work
-- [ ] Data survives a refresh
-- [ ] User A cannot see or change User B's contacts (manually and via `scripts/rls-check.mjs`)
-- [ ] Invalid data (empty name, bad priority) fails with a clear message
-- [ ] `npm test` passes
-- [ ] No secret values appear in the repository or Git history
-- [ ] This README has the live URL and every grading artifact above
+- [x] Live at a public Vercel URL — https://assignment-1-rho-five.vercel.app
+- [x] Sign in and sign out work (verified live)
+- [x] Add, view, edit, delete, sort, and filter contacts all work (verified live)
+- [x] Data survives a refresh (verified live)
+- [x] User A cannot see or change User B's contacts (verified via `npm run rls-check` against the live database — see output above)
+- [x] Invalid data (empty name, bad priority) fails with a clear message (verified live)
+- [x] `npm test` passes (6/6, see output above)
+- [x] No secret values appear in the repository or Git history (`.env.local` is git-ignored; `.env.example` holds only placeholders; `DATABASE_URL` lives only in `.env.local` and Vercel's server-side env store)
+- [ ] This README has the live URL and every grading artifact above — screenshots/recording still need to be added (see [Screenshots / walkthrough](#screenshots--walkthrough))
 
 ## Known limitations & next steps
 
@@ -319,3 +338,6 @@ the database is correct.
 - Next step: add organization-style shared address books if multi-user
   collaboration is ever needed (explicitly out of scope for this
   assignment).
+- Adding a custom domain (or a new Vercel preview/alias domain) later
+  requires also adding it under Neon **Auth → Configuration → Domains**, or
+  sign-in on that domain will fail with "Invalid origin".
