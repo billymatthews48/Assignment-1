@@ -38,6 +38,9 @@ a minute since the flows already work end-to-end:
    signed in as two different accounts side by side, each showing only its
    own contacts list
 
+   <img width="956" height="563" alt="image" src="https://github.com/user-attachments/assets/50f359de-2166-40b2-9f52-079cf2ef092c" />
+
+
 ## Features
 
 - Email/password sign-up, sign-in, and sign-out via Neon Managed Better Auth
