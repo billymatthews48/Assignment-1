@@ -31,6 +31,9 @@ a minute since the flows already work end-to-end:
 
 3. Typing a blank/whitespace-only name (or leaving priority unset) and
    submitting, to show the "Name is required." / priority error
+<img width="393" height="446" alt="image" src="https://github.com/user-attachments/assets/c678367f-c419-4e93-8732-f96ef046d296" />
+
+   
 4. Two browser profiles (or one normal + one private/incognito window)
    signed in as two different accounts side by side, each showing only its
    own contacts list
