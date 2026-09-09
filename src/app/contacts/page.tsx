@@ -117,9 +117,11 @@ export default function ContactsPage() {
 
   async function handleCreate(input: ContactInput) {
     if (!user) return;
+    // user_id is intentionally omitted: the database default (auth.user_id())
+    // sets it, so the client is never even given the ability to set it.
     const { data, error } = await neon
       .from("contacts")
-      .insert({ ...input, user_id: user.id })
+      .insert(input)
       .select()
       .single();
 

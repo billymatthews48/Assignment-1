@@ -192,19 +192,48 @@ Table: `contacts` (see [`db/schema.sql`](db/schema.sql) for the full DDL)
 Manually: sign up as User A, add a contact, sign out, sign up as User B —
 User B's contact list is empty, and User B cannot fetch User A's contact by
 ID (RLS returns zero rows rather than an error, which is the correct RLS
-behavior — the row doesn't "exist" from User B's perspective).
+behavior — the row doesn't "exist" from User B's perspective). This was
+verified by hand against the live project (see screenshots above).
 
 Automated: [`scripts/rls-check.mjs`](scripts/rls-check.mjs) creates two
-throwaway accounts, has each create a contact, then asserts that
-select/update/delete across accounts have no effect:
+throwaway accounts (each in its own child process, so their sessions can't
+bleed into each other the way two clients in one process sometimes do), has
+each create a contact, then asserts that cross-account select/update/delete
+all have zero effect:
 
 ```bash
-node --env-file=.env.local scripts/rls-check.mjs
+npm run rls-check
 ```
 
-_TODO — paste the output of this command (or the manual two-account
-walkthrough with screenshots) here once you've run it against your Neon
-project._
+**Actual output against this project's live database:**
+
+```
+> networking-tracker@0.1.0 rls-check
+> node --env-file=.env.local scripts/rls-check.mjs
+
+Creating two test accounts (each in its own process)...
+  User A: rls-check-a-1788932794249-81961@example.com -> contact 8ede66e4-efb2-4df3-97fe-c203edb83958
+  User B: rls-check-b-1788932795984-952248@example.com -> contact 705f5480-bd26-4034-b172-a787c338c6ba
+  ✓ The two accounts have different user ids
+  ✓ The two contacts have different ids
+
+Checking SELECT isolation...
+  ✓ User A's contact list does not include User B's contact
+  ✓ User B's contact list does not include User A's contact
+
+Checking cross-account READ isolation...
+  ✓ User A cannot read User B's contact by id
+
+Checking cross-account UPDATE isolation...
+  ✓ User A's update to User B's contact had no effect
+
+Checking cross-account DELETE isolation...
+  ✓ User A's delete of User B's contact had no effect
+
+Cleaning up...
+
+PASSED: 0 assertion failure(s).
+```
 
 ## Testing
 
@@ -230,7 +259,21 @@ the database is correct.
 
 **Sample passing output:**
 ```
-_TODO — paste the output of `npm test` here._
+> networking-tracker@0.1.0 test
+> vitest run
+
+ RUN  v5.0.0
+
+ ✓ src/lib/__tests__/validateContact.test.ts (6 tests) 3ms
+   ✓ validateContact > rejects an empty name
+   ✓ validateContact > rejects a whitespace-only name
+   ✓ validateContact > rejects an invalid priority value
+   ✓ validateContact > rejects a missing priority
+   ✓ validateContact > accepts a valid contact and trims whitespace
+   ✓ validateContact > accepts a valid contact with only the required fields
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
 ```
 
 ## Deployment
