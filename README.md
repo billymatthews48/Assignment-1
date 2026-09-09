@@ -18,11 +18,13 @@ a minute since the flows already work end-to-end:
 
 1. Sign up → sign in → sign out (`/auth/sign-up`, `/auth/sign-in`, the
    account menu's "Sign Out")
-2. Creating, editing, deleting a contact, then refreshing the page to show
+   <img width="308" height="308" alt="image" src="https://github.com/user-attachments/assets/f65fbaf0-6d8d-4ba5-bd4b-9ef17677e6ac" />
+
+3. Creating, editing, deleting a contact, then refreshing the page to show
    it persists
-3. Typing a blank/whitespace-only name (or leaving priority unset) and
+4. Typing a blank/whitespace-only name (or leaving priority unset) and
    submitting, to show the "Name is required." / priority error
-4. Two browser profiles (or one normal + one private/incognito window)
+5. Two browser profiles (or one normal + one private/incognito window)
    signed in as two different accounts side by side, each showing only its
    own contacts list
 
